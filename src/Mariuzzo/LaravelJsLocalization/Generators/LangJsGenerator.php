@@ -61,6 +61,20 @@ class LangJsGenerator
         }
 
         $messages = $this->getMessages();
+        
+        // parse json
+        $translations = glob(resource_path() . '/lang/*.{json}', GLOB_BRACE);
+
+        $messages_json = [];
+        foreach ($translations as $translation_path) {
+            $locale = pathinfo($translation_path)['filename'];
+            $json = json_decode(file_get_contents($translation_path), true);
+            $messages_json = [];
+            foreach ($json as $key => $value) {
+                $messages_json[$locale . '.' . $key] = $value;
+            }
+        }
+        $messages = array_merge($messages,$messages_json);
         $this->prepareTarget($target);
 
         if ($options['no-lib']) {
